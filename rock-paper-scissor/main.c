@@ -2,130 +2,151 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "common/io.h"
+
 #define ROCK 1
 #define PAPER 2
 #define SCISSOR 3
 
-#ifdef __unix__
-#include <termios.h>
-#elif defined(_WIN32) || defined(WIN32)
-#include <conio.h>
-#endif
+void getUserPick(int *user_pick);
+int getRandomPick();
+int evalPicks(int user_pick, int comp_pick);
 
-#ifdef __unix__
-static struct termios old, new;
-
-void initTermios(int echo);
-void resetTermios();
-char getch_(int echo);
-char getch();
-char getche();
-#endif
-
-int getRandomNumber(int max, int min);
-void getUserInput(int *u);
-int evalOutput(int u, int c);
+void printPick(int pick);
+void printUserPick(int user_pick);
+void printCompPick(int comp_pick);
 
 int main(int argc, char **argv) {
 
-	/*char c;*/
-	/*printf("(getche example) please type a letter: ");*/
-          /*c = getche();*/
-          /*printf("\nYou typed: %c\n", c);*/
-          /*printf("(getch example) please type a letter...");*/
-          /*c = getch();*/
-          /*printf("\nYou typed: %c\n", c);*/
-          /*return 0;*/
-
+	int user_score = 0, comp_score = 0;
 	int exit = 0;
+	int user_pick, comp_pick;
+	int status;
 
-	/*time_t t;*/
+	time_t t;
+	srand((unsigned) time(&t));
 
-	/*srand((unsigned) time(&t));*/
+	while(!exit) {
+		getUserPick(&user_pick);
 
-	/*int guess, guessMax, guessMin, i;*/
+		if(user_pick == 4) {
+			exit = 1;
+			if(user_score > comp_score) {
+				printf("You win!\n");
+			} else if(user_score < comp_score) {
+				printf("You lose!\n");
+			} else {
+				printf("It's a draw!\n");
+			}
+			break;
+		}
 
-	/*printf("Think of a number and press enter: ");*/
-	/*scanf("%c", &i);*/
+		comp_pick = getRandomPick();
 
-	/*guessMax = INIT_MAX_GUESS;*/
-	/*guessMin = INIT_MIN_GUESS;*/
-	/*guess = getRandomNumber(guessMax, guessMin);*/
+		printUserPick(user_pick);
+		printCompPick(comp_pick);
 
-	/*while(!exit) {*/
-		/*printf("Was it %d?\n", guess);*/
-		/*printf("Press 1 if it was High\n");*/
-		/*printf("Press 2 if it was Low\n");*/
-		/*printf("Press 3 if it was Correct\n");*/
-		/*printf("Press 4 to exit\n");*/
-		/*scanf("%d", &i);*/
+		status = evalPicks(user_pick, comp_pick);
 
-		/*switch(i) {*/
-			/*case 1:*/
-				/*guessMax = guess;*/
-				/*if(guessMax - guessMin < 2)*/
-					/*guessMin -= 100;*/
-				/*break;*/
-			/*case 2:*/
-				/*guessMin = guess;*/
-				/*if(guessMax - guessMin < 2)*/
-					/*guessMax += 100;*/
-				/*break;*/
-			/*case 3:*/
-				/*printf("Found it!\n");*/
-				/*exit = 1;*/
-				/*break;*/
-			/*case 4:*/
-				/*exit = 1;*/
-				/*break;*/
-			/*default:*/
-				/*printf("Invalid Input!\n");*/
-				/*break;*/
-		/*}*/
+		printf("This round - ");
 
-		/*guess = getRandomNumber(guessMax, guessMin);*/
-	/*}*/
-
+		switch(status) {
+			case 2:
+				printf("Draw!\n");
+				break;
+			case 1:
+				printf("Win!\n");
+				user_score++;
+				break;
+			case 0:
+				printf("Lose!\n");
+				comp_score++;
+				break;
+			case -1:
+				printf("Invalid Input!\n");
+				break;
+		}
+	}
 }
 
-void getUserInput(int *u) {
-	printf("Press 3 for ");
+void getUserPick(int *user_pick) {
+	printf("1 - Rock\n");
+	printf("2 - Paper\n");
+	printf("3 - Scissor\n");
+	printf("4 - Quit\n");
+	printf("Enter your pick: ");
+	*user_pick = getch() - '0';
+	printf("\n");
 }
 
-int evalOutput(int u, int c) {
-	return 0;
+int getRandomPick() {
+	float rock_pick = rand() / (float)RAND_MAX;
+	float paper_pick = rand() / (float)RAND_MAX;
+	float scissor_pick = rand() / (float)RAND_MAX;
+
+	float m = rock_pick > paper_pick ? rock_pick : paper_pick;
+	float n = scissor_pick > m ? scissor_pick : m;
+
+	if(n == rock_pick) return ROCK;
+	if(n == paper_pick) return PAPER;
+	if(n == scissor_pick) return SCISSOR;
+	return -1;
+}
+
+int evalPicks(int user_pick, int comp_pick) {
+
+	/*if(user_pick != ROCK && user_pick != PAPER && user_pick != SCISSOR && comp_pick != ROCK && comp_pick != PAPER && comp_pick != SCISSOR)*/
+		/*return -1;*/
+
+	if(user_pick == comp_pick) return 2;
+
+	if(user_pick == ROCK) {
+		if(comp_pick == PAPER) {
+			return 0;
+		} else if(comp_pick == SCISSOR) {
+			return 1;
+		}
+	} else if(user_pick == PAPER) {
+		if(comp_pick == ROCK) {
+			return 1;
+		} else if(comp_pick == SCISSOR) {
+			return 0;
+		}
+	} else if(user_pick == SCISSOR) {
+		if(comp_pick == ROCK) {
+			return 0;
+		} else if(comp_pick == PAPER) {
+			return 1;
+		}
+	}
+
+	return -1;
 }
 
 int getRandomNumber(int max, int min) {
 	return  (int)((rand() / (float)RAND_MAX) * (max - min - 1)) + min + 1;
 }
 
-#ifdef __unix__
-void initTermios(int echo) {
-	tcgetattr(0, &old);
-	new = old;
-	new.c_lflag &= ~ICANON;
-	new.c_lflag &= echo ? ECHO: ~ECHO;
-	tcsetattr(0, TCSANOW, &new);
+void printPick(int pick) {
+	if(pick == ROCK) {
+		printf("Rock");
+	} else if(pick == PAPER) {
+		printf("Paper");
+	} else if(pick == SCISSOR) {
+		printf("Scissor");
+	} else {
+		printf("Invalid!");
+	}
 }
 
-void resetTermios() {
-	tcsetattr(0, TCSANOW, &old);
+void printUserPick(int user_pick) {
+	printf("Your pick was ");
+	printPick(user_pick);
+	printf("\n");
 }
 
-char getch_(int echo) {
-	char ch;
-	initTermios(echo);
-	ch = getchar();
-	resetTermios();
-	return ch;
+void printCompPick(int comp_pick) {
+	printf("Computer's pick was ");
+	printPick(comp_pick);
+	printf("\n");
 }
-
-char getch() {
-	return getch_(0);
-}
-
-char getche() {
-	return getch_(1);
-}
-#endif

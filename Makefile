@@ -1,6 +1,6 @@
 TOPTARGETS := all clean
 
-SUBDIRS := $(wildcard */.)
+SUBDIRS := common/. $(filter-out common/., $(wildcard */.))
 
 $(TOPTARGETS): $(SUBDIRS)
 $(SUBDIRS):

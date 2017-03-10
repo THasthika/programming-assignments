@@ -1,8 +1,9 @@
-TARGET = game
-LIBS = -lm -static -lcommon
+TARGET = libcommon.a
+LIBS = 
 CC = gcc
-CFLAGS = -g -Wall -I../
-LDFLAGS = -g -Wall -L../common/
+AR = ar
+CFLAGS = -g -Wall
+LDFLAGS = -g -Wall
 
 .PHONY: default all clean
 
@@ -18,7 +19,7 @@ HEADERS = $(wildcard *.h)
 .PRECIOUS: $(TARGET) $(OBJECTS)
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(OBJECTS) $(LDFLAGS) $(LIBS) -o $@
+	$(AR) -rcs $(TARGET) $(OBJECTS)
 
 clean:
 	-rm -f *.o
