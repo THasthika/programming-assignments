@@ -7,6 +7,7 @@
 #define INIT_MAX_GUESS 1000000
 #define INIT_MIN_GUESS -1000000
 
+void getUserInput(int *user);
 int getRandomNumber(int max, int min);
 
 int main(int argc, char **argv) {
@@ -29,13 +30,7 @@ int main(int argc, char **argv) {
 
 	while(!exit) {
 		printf("Was it %d?\n", guess);
-		printf("Press 1 if it was High\n");
-		printf("Press 2 if it was Low\n");
-		printf("Press 3 if it was Correct\n");
-		printf("Press 4 to exit\n");
-		i = getche() - '0';
-		printf("\n");
-
+		getUserInput(&i);
 		switch(i) {
 			case 1:
 				guessMax = guess;
@@ -62,6 +57,15 @@ int main(int argc, char **argv) {
 		guess = getRandomNumber(guessMax, guessMin);
 	}
 
+}
+
+void getUserInput(int *user) {
+		printf("Press 1 if it was High\n");
+		printf("Press 2 if it was Low\n");
+		printf("Press 3 if it was Correct\n");
+		printf("Press 4 to exit\n");
+		*user = getche() - '0';
+		printf("\n");
 }
 
 int getRandomNumber(int max, int min) {
