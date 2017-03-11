@@ -26,9 +26,9 @@ int main(int argc, char **argv) {
 
 	guessMax = INIT_MAX_GUESS;
 	guessMin = INIT_MIN_GUESS;
-	guess = getRandomNumber(guessMax, guessMin);
 
 	while(!exit) {
+		guess = getRandomNumber(guessMax, guessMin);
 		printf("Was it %d?\n", guess);
 		getUserInput(&i);
 		switch(i) {
@@ -53,8 +53,6 @@ int main(int argc, char **argv) {
 				printf("Invalid Input!\n");
 				break;
 		}
-
-		guess = getRandomNumber(guessMax, guessMin);
 	}
 
 }
